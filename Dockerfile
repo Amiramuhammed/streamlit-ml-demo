@@ -1,17 +1,25 @@
 FROM python:3.9-slim
-
+ 
 WORKDIR /app
-
-# Install system packages (from packages.txt)
-COPY packages.txt .
-RUN apt-get update && xargs apt-get install -y < packages.txt
-
+ 
+# Install updated system dependencies
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    libglib2.0-0 \
+    libopenblas-dev \
+    gcc \
+    python3-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+ 
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
+ 
 COPY . .
-
+ 
 EXPOSE 8501
-
-CMD ["streamlit", "run", "ml_frontend.py", "--server.port=8501", "--server.address=0.0.0.0"]
+ 
+CMD ["streamlit", "run", "ml_frontend.py", \
+     "--server.port=8501", \
+     "--server.address=0.0.0.0"]
